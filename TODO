@@ -1,4 +1,0 @@
-* Implement D-BUS interface using QtDBus
-    * Read documentation of QtDBus
-    * Implement tests
-* Implement graphical application for the systray
