@@ -7,5 +7,5 @@ QT += dbus
 TEMPLATE = lib
 
 TARGET = powermanager
-SOURCES += powermanager.cpp
-HEADERS += ../include/powermanager.h
+SOURCES += powermanager.cpp upower.cpp upower_device.cpp
+HEADERS += ../include/powermanager.h ../include/upower_device.h ../include/upower.h
