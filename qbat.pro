@@ -6,9 +6,8 @@ CONFIG+=ordered
 
 SUBDIRS = \
     src \
-    tests
+    tests/upower \
+    tests/upower_device
 
 OTHER_FILES += \
     defaults.pri
-
-tests.depends = src

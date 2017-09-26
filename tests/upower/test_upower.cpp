@@ -14,6 +14,8 @@ void TestUPower::query_device_paths ()
     reply.waitForFinished();
 
     QVERIFY(reply.isValid ());
+
+    QVERIFY(upower.onBattery() == false);
 }
 
 QTEST_MAIN (TestUPower);
