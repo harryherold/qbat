@@ -9,6 +9,7 @@
 #include <upower_device.h>
 
 using PowerDevicePath = QDBusObjectPath;
+using UPowerDevice = OrgFreedesktopUPowerDeviceInterface;
 
 enum class DeviceTypes
 {
@@ -26,7 +27,6 @@ enum class DeviceTypes
 class PowerManagement : public QObject
 {
     Q_OBJECT
-    using UPowerDevice = OrgFreedesktopUPowerDeviceInterface;
 
     public:
     PowerManagement (QObject *parent = NULL);
@@ -35,6 +35,11 @@ class PowerManagement : public QObject
     uint getPowerDeviceCount ()
     {
         return m_upower_devices.count ();
+    }
+
+    QList<UPowerDevice *> getDevices()
+    {
+        return m_upower_devices;
     }
 
     private:
