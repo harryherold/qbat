@@ -1,11 +1,11 @@
 include(../defaults.pri)
 
-CONFIG   += console
+#CONFIG   += console
 
-QT += dbus
+QT += dbus core gui widgets
 
-TEMPLATE = lib
+TEMPLATE = app
 
-TARGET = powermanager
-SOURCES += powermanager.cpp upower.cpp upower_device.cpp
-HEADERS += ../include/powermanager.h ../include/upower_device.h ../include/upower.h
+TARGET = qbat
+SOURCES += qbat.cpp upower.cpp upower_device.cpp foo.cpp
+HEADERS += ../include/upower_device.h ../include/upower.h foo.h

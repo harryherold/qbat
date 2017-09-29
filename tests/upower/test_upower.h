@@ -10,8 +10,9 @@ class TestUPower : public QObject
 
     using PowerDevicePath = QDBusObjectPath;
     using UPower = OrgFreedesktopUPowerInterface;
-
-    private slots:
+public slots:
+    void updateProperties(QString s, QMap<QString, QVariant> dict, QStringList l);
+private slots:
     void query_device_paths ();
 };
 
