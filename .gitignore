@@ -1,0 +1,8 @@
+*.o
+moc_*
+src/qbat
+tests/upower/test_upower
+tests/upower_device/test_upower_device
+Makefile
+.vscode
+.qmake*
