@@ -1,9 +1,11 @@
 #include <QApplication>
-#include "foo.h"
+#include "battery_window.h"
 
 int main (int argc, char **argv)
 {
     QApplication app (argc, argv);
-    Foo *f = new Foo ();
+
+    BatteryWindow bat;
+
     return app.exec ();
 }
