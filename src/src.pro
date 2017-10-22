@@ -6,6 +6,14 @@ TEMPLATE = app
 
 TARGET = qbat
 
+CONFIG += debug
+
+DESTDIR = ../bin
+OBJECTS_DIR = ../build
+MOC_DIR = ../build
+RCC_DIR = ../build
+UI_DIR = ../build
+
 SOURCES += qbat.cpp \
            upower.cpp \
            upower_device.cpp \
