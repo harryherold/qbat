@@ -1,8 +1,11 @@
 *.o
 moc_*
+bin/*
 src/qbat
 tests/upower/test_upower
 tests/upower_device/test_upower_device
 Makefile
 .vscode
 .qmake*
+compile_commands.json
+
