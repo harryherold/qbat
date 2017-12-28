@@ -29,9 +29,9 @@ BatteryWindow::BatteryWindow()
 
 BatteryWindow::~BatteryWindow()
 {
-    for(BatteryIcon * battery: m_batteryIcons)
+    for(UPowerDevice * dev: m_devices)
     {
-        delete battery;
+        delete dev;
     }
 }
 
@@ -54,17 +54,13 @@ void BatteryWindow::initializePowerDevices()
         if(dev->type() == 2 && dev->nativePath().contains("BAT"))
         {
             qDebug() << "Add device " << dev->nativePath();
-            BatteryIcon * battery = new BatteryIcon(dev, this);
-            connect(m_timer, SIGNAL(timeout()), battery, SLOT(update()));
-            connect(this, SIGNAL(powerStateChanged()), battery, SLOT(update()));
-            m_batteryIcons.append(battery);
+            m_devices.append(dev);
         }
         else
         {
             delete dev;
         }
     }
-    m_timer->start(5000);
 }
 
 void BatteryWindow::updateUPowerProperties(QString, QMap<QString, QVariant> dict, QStringList)
@@ -74,4 +70,83 @@ void BatteryWindow::updateUPowerProperties(QString, QMap<QString, QVariant> dict
         qDebug() << "[BatteryWindow] : Updated upower properties";
         emit powerStateChanged();
     }
+}
+
+QColor BatteryWindow::getColor(double percentage)
+{
+    if(percentage < 20.0)
+        return Qt::red;
+    else if(percentage <= 50.0)
+        return Qt::yellow;
+    else if(percentage <= 80.0)
+        return Qt::blue;
+    else
+        return Qt::green;
+}
+
+double
+BatteryWindow::getAccumulatedPercentage()
+{
+    double sum = 0.0;
+    for(UPowerDevice * dev: m_devices)
+    {
+        sum += dev->percentage();
+    }
+    return sum / m_devices.count();
+}
+
+double
+BatteryWindow::getAccumulatedTime()
+{
+    double time = 0.0;
+    for(UPowerDevice * dev: m_devices)
+    {
+        time += dev->timeToEmpty();
+    }
+    return time;
+}
+
+void BatteryWindow::update(void)
+{
+    auto state = m_upower->onBattery() ? BatteryState::DISCHARGING : BatteryState::CHARGING;
+    auto percentage = getAccumulatedPercentage();
+    qDebug() << "Update icon " << percentage << "\%";
+    drawIcon(percentage, state);
+    double secs = getAccumulatedTime();
+    int hours = secs / 3600;
+    int mins = (secs / 60) - (hours * 60);
+    m_trayIcon->setToolTip(QString("Time: %1 hours, %2 mins").arg(hours).arg(mins));
+}
+
+void BatteryWindow::drawIcon(double percentage, BatteryState state)
+{
+    QPixmap pix(width, height);
+    QPainter painter(&pix);
+
+    QPainterPath battery_path;
+    battery_path.addRoundedRect(m_batteryRect, 10, 10);
+    painter.fillPath(battery_path, Qt::white);
+    painter.drawPath(battery_path);
+
+    const int h = (percentage * height) / 100;
+    m_progressRect.setSize(QSize(width, h));
+    m_progressRect.moveTo(0, height - h);
+
+    QColor progress_color(getColor(percentage));
+    QPen pen(progress_color);
+
+    QPainterPath path;
+    painter.setRenderHint(QPainter::Antialiasing);
+    path.addRoundedRect(m_progressRect, 10, 10);
+
+    painter.fillPath(path, progress_color);
+    painter.drawPath(path);
+
+    if(state == BatteryState::CHARGING)
+    {
+        qDebug() << "[BatteryIcon] : " << "draw bolt";
+    }
+
+    m_trayIcon->setIcon(QIcon(pix));
+    m_trayIcon->show();
 }

@@ -23,6 +23,7 @@ public:
     virtual ~BatteryWindow();
 
 public slots:
+    void update(void);
     void updateUPowerProperties(QString, QMap<QString, QVariant>,QStringList);
 
 signals:
@@ -33,7 +34,15 @@ private:
     UPower * m_upower;
     QList<BatteryIcon *> m_batteryIcons;
 
+    QSystemTrayIcon * m_trayIcon;
+    QRectF m_progressRect;
+    QRectF m_batteryRect;
+    QList<UPowerDevice *> m_devices;
     void initializePowerDevices();
+    void drawIcon(double percentage, BatteryState state);
+    QColor getColor(double percentage);
+    double getAccumulatedPercentage(void);
+    double getAccumulatedTime(void);
 };
 
 #endif // BATTERY_WINDOW_H
