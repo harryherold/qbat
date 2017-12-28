@@ -30,10 +30,10 @@ signals:
     void powerStateChanged();
 
 private:
+    const int height = 128;
+    const int width = 80;
     QTimer * m_timer;
     UPower * m_upower;
-    QList<BatteryIcon *> m_batteryIcons;
-
     QSystemTrayIcon * m_trayIcon;
     QRectF m_progressRect;
     QRectF m_batteryRect;

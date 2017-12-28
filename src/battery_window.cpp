@@ -4,6 +4,11 @@
 #include <QDebug>
 
 BatteryWindow::BatteryWindow()
+: m_timer(nullptr),
+  m_upower(nullptr),
+  m_trayIcon(nullptr),
+  m_progressRect(0, 0, 0, 0),
+  m_batteryRect(0, 0, width, height)
 {
     QDBusConnection system_bus = QDBusConnection::systemBus ();
 
@@ -23,8 +28,11 @@ BatteryWindow::BatteryWindow()
     }
 
     m_timer = new QTimer(this);
-
+    m_trayIcon = new QSystemTrayIcon(this);
     initializePowerDevices();
+    update();
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
+    m_timer->start(5000);
 }
 
 BatteryWindow::~BatteryWindow()
@@ -33,6 +41,9 @@ BatteryWindow::~BatteryWindow()
     {
         delete dev;
     }
+    delete m_upower;
+    delete m_trayIcon;
+    delete m_timer;
 }
 
 void BatteryWindow::initializePowerDevices()
