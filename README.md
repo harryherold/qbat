@@ -1,3 +1,4 @@
+# qbat
 ﻿## Todos
 - If batteries are full and power supply is plugged, disable timer
 - A graphically highlight is needed to show the plugged power
