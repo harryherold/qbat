@@ -26,12 +26,9 @@ public slots:
     void update(void);
     void updateUPowerProperties(QString, QMap<QString, QVariant>,QStringList);
 
-signals:
-    void powerStateChanged();
-
 private:
     const int height = 128;
-    const int width = 80;
+    const int width = 60;
     QTimer * m_timer;
     UPower * m_upower;
     QSystemTrayIcon * m_trayIcon;
@@ -40,9 +37,10 @@ private:
     QList<UPowerDevice *> m_devices;
     void initializePowerDevices();
     void drawIcon(double percentage, BatteryState state);
-    QColor getColor(double percentage);
+    QColor getColor(double percentage, BatteryState state);
     double getAccumulatedPercentage(void);
-    double getAccumulatedTime(void);
+    double getTimeToEmpty(void);
+    double getTimeToFull(void);
 };
 
 #endif // BATTERY_WINDOW_H

@@ -1,3 +1,4 @@
+#include <chrono>
 #include "battery_window.h"
 #include <utils.h>
 
@@ -32,7 +33,8 @@ BatteryWindow::BatteryWindow()
     initializePowerDevices();
     update();
     connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
-    m_timer->start(5000);
+    using namespace std::chrono_literals;
+    m_timer->start(1min);
 }
 
 BatteryWindow::~BatteryWindow()
@@ -79,13 +81,15 @@ void BatteryWindow::updateUPowerProperties(QString, QMap<QString, QVariant> dict
     if(dict.contains(QString("OnBattery")))
     {
         qDebug() << "[BatteryWindow] : Updated upower properties";
-        emit powerStateChanged();
+        update();
     }
 }
 
-QColor BatteryWindow::getColor(double percentage)
+QColor BatteryWindow::getColor(double percentage, BatteryState state)
 {
-    if(percentage < 20.0)
+    if(state == BatteryState::CHARGING)
+        return QColor(255, 165, 0);
+    else if(percentage < 20.0)
         return Qt::red;
     else if(percentage <= 50.0)
         return Qt::yellow;
@@ -107,12 +111,23 @@ BatteryWindow::getAccumulatedPercentage()
 }
 
 double
-BatteryWindow::getAccumulatedTime()
+BatteryWindow::getTimeToEmpty()
 {
     double time = 0.0;
     for(UPowerDevice * dev: m_devices)
     {
         time += dev->timeToEmpty();
+    }
+    return time;
+}
+
+double
+BatteryWindow::getTimeToFull()
+{
+    double time = 0.0;
+    for(UPowerDevice * dev: m_devices)
+    {
+        time += dev->timeToFull();
     }
     return time;
 }
@@ -123,7 +138,7 @@ void BatteryWindow::update(void)
     auto percentage = getAccumulatedPercentage();
     qDebug() << "Update icon " << percentage << "\%";
     drawIcon(percentage, state);
-    double secs = getAccumulatedTime();
+    double secs = (state == BatteryState::DISCHARGING) ? getTimeToEmpty() : getTimeToFull();
     int hours = secs / 3600;
     int mins = (secs / 60) - (hours * 60);
     m_trayIcon->setToolTip(QString("Time: %1 hours, %2 mins").arg(hours).arg(mins));
@@ -133,30 +148,24 @@ void BatteryWindow::drawIcon(double percentage, BatteryState state)
 {
     QPixmap pix(width, height);
     QPainter painter(&pix);
-
     QPainterPath battery_path;
-    battery_path.addRoundedRect(m_batteryRect, 10, 10);
+    QColor progress_color(getColor(percentage, state));
+
+    battery_path.addRect(m_batteryRect);
     painter.fillPath(battery_path, Qt::white);
     painter.drawPath(battery_path);
 
     const int h = (percentage * height) / 100;
+    qDebug() << "Progress height " << h;
     m_progressRect.setSize(QSize(width, h));
     m_progressRect.moveTo(0, height - h);
 
-    QColor progress_color(getColor(percentage));
-    QPen pen(progress_color);
-
     QPainterPath path;
     painter.setRenderHint(QPainter::Antialiasing);
-    path.addRoundedRect(m_progressRect, 10, 10);
+    path.addRect(m_progressRect);
 
     painter.fillPath(path, progress_color);
     painter.drawPath(path);
-
-    if(state == BatteryState::CHARGING)
-    {
-        qDebug() << "[BatteryIcon] : " << "draw bolt";
-    }
 
     m_trayIcon->setIcon(QIcon(pix));
     m_trayIcon->show();
